@@ -1,19 +1,24 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
 import { Lock, Mail } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import { TextField, PasswordField } from './form-field'
 import { SubmitButton, Checkbox } from './controls'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function LoginForm() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [formError, setFormError] = useState<string>()
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setFormError(undefined)
     const form = new FormData(e.currentTarget)
     const email = String(form.get('email') ?? '').trim()
     const password = String(form.get('password') ?? '')
@@ -27,8 +32,23 @@ export function LoginForm() {
     if (Object.keys(next).length > 0) return
 
     setLoading(true)
-    // Frontend-only demo: no authentication logic.
-    setTimeout(() => setLoading(false), 1400)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (error) {
+        setFormError('Incorrect email or password. Please try again.')
+        setLoading(false)
+        return
+      }
+      router.push('/dashboard')
+      router.refresh()
+    } catch {
+      setFormError('Something went wrong. Please try again.')
+      setLoading(false)
+    }
   }
 
   return (
@@ -43,6 +63,15 @@ export function LoginForm() {
       </header>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        {formError ? (
+          <div
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/5 px-3.5 py-3 text-sm font-medium text-destructive"
+          >
+            {formError}
+          </div>
+        ) : null}
+
         <TextField
           label="Email address"
           name="email"

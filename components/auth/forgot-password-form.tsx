@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
 import { ArrowLeft, Mail, MailCheck } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import { TextField } from './form-field'
 import { SubmitButton } from './controls'
 
@@ -13,7 +14,7 @@ export function ForgotPasswordForm() {
   const [error, setError] = useState<string>()
   const [sentTo, setSentTo] = useState<string>()
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const form = new FormData(e.currentTarget)
     const email = String(form.get('email') ?? '').trim()
@@ -23,10 +24,21 @@ export function ForgotPasswordForm() {
     setError(undefined)
 
     setLoading(true)
-    setTimeout(() => {
+    try {
+      const supabase = createClient()
+      // We always show the success state regardless, to avoid leaking
+      // whether an account exists.
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo:
+          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
+          `${window.location.origin}/auth/callback`,
+      })
+    } catch {
+      // Intentionally ignored — see comment above.
+    } finally {
       setLoading(false)
       setSentTo(email)
-    }, 1200)
+    }
   }
 
   if (sentTo) {

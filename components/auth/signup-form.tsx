@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
-import { Lock, Mail, User } from 'lucide-react'
+import { Lock, Mail, MailCheck, User } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import { TextField, PasswordField } from './form-field'
 import { SubmitButton, Checkbox } from './controls'
 
@@ -16,14 +18,18 @@ type Errors = {
 }
 
 export function SignupForm() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<Errors>({})
+  const [formError, setFormError] = useState<string>()
+  const [sentTo, setSentTo] = useState<string>()
 
   const strength = getStrength(password)
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setFormError(undefined)
     const form = new FormData(e.currentTarget)
     const name = String(form.get('name') ?? '').trim()
     const email = String(form.get('email') ?? '').trim()
@@ -41,7 +47,64 @@ export function SignupForm() {
     if (Object.keys(next).length > 0) return
 
     setLoading(true)
-    setTimeout(() => setLoading(false), 1400)
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo:
+            process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
+            `${window.location.origin}/auth/callback`,
+          data: { full_name: name },
+        },
+      })
+      if (error) {
+        setFormError(error.message)
+        setLoading(false)
+        return
+      }
+      // If email confirmation is on, there is no active session yet.
+      if (data.session) {
+        router.push('/dashboard')
+        router.refresh()
+      } else {
+        setSentTo(email)
+        setLoading(false)
+      }
+    } catch {
+      setFormError('Something went wrong. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  if (sentTo) {
+    return (
+      <div>
+        <span
+          className="mb-6 flex size-12 items-center justify-center rounded-2xl bg-accent-yellow text-accent-yellow-foreground"
+          aria-hidden="true"
+        >
+          <MailCheck className="size-6" />
+        </span>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Confirm your email
+        </h1>
+        <p className="mt-2 leading-relaxed text-muted-foreground">
+          We&apos;ve sent a confirmation link to{' '}
+          <span className="font-medium text-foreground">{sentTo}</span>. Click it
+          to activate your account, then sign in.
+        </p>
+        <div className="mt-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-brand"
+          >
+            Back to sign in
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -56,6 +119,15 @@ export function SignupForm() {
       </header>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        {formError ? (
+          <div
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/5 px-3.5 py-3 text-sm font-medium text-destructive"
+          >
+            {formError}
+          </div>
+        ) : null}
+
         <TextField
           label="Full name"
           name="name"
