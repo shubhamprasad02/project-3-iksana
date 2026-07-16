@@ -34,27 +34,20 @@ export default async function DashboardPage() {
     <div className="min-h-svh bg-background">
       <AppHeader userName={userName} />
 
-      <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6">
-        {/* Greeting */}
-        <div className="mb-10">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {firstName ? `Welcome back, ${firstName}.` : 'Welcome back.'}
-          </h1>
-          <p className="mt-1.5 text-muted-foreground">
-            Browse available rooms and manage your upcoming bookings.
-          </p>
-        </div>
+      <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-6">
 
         {/* Upcoming bookings */}
         {upcomingBookings.length > 0 && (
-          <section className="mb-12" aria-labelledby="upcoming-heading">
-            <h2
-              id="upcoming-heading"
-              className="mb-4 text-lg font-semibold text-foreground"
-            >
-              Upcoming bookings
-            </h2>
-            <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+          <section className="mb-10" aria-labelledby="upcoming-heading">
+            <div className="mb-4 flex items-center justify-between">
+              <h2
+                id="upcoming-heading"
+                className="text-lg font-semibold text-foreground"
+              >
+                Your upcoming bookings
+              </h2>
+            </div>
+            <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
               {upcomingBookings.map((booking) => (
                 <BookingRow key={booking.id} booking={booking} />
               ))}
@@ -64,18 +57,23 @@ export default async function DashboardPage() {
 
         {/* Available rooms */}
         <section aria-labelledby="rooms-heading">
-          <h2
-            id="rooms-heading"
-            className="mb-4 text-lg font-semibold text-foreground"
-          >
-            Available rooms
-          </h2>
+          <div className="mb-5">
+            <h2
+              id="rooms-heading"
+              className="text-xl font-bold text-foreground"
+            >
+              {firstName ? `Hi ${firstName}, pick a room` : 'Pick a room'}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Select a space below to view availability and book your slot.
+            </p>
+          </div>
           {rooms.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No rooms available at the moment.
             </p>
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
               {rooms.map((room) => (
                 <RoomCard key={room.id} room={room} />
               ))}
