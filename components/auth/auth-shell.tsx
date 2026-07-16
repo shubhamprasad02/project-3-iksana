@@ -59,9 +59,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
             </ul>
           </div>
 
-          <p className="text-xs text-brand-foreground/50">
-            &copy; {new Date().getFullYear()} iKSANA Workspace. All rights reserved.
-          </p>
+          <span aria-hidden="true" />
         </div>
       </aside>
 
