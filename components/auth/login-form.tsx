@@ -1,0 +1,93 @@
+'use client'
+
+import Link from 'next/link'
+import { useState, type FormEvent } from 'react'
+import { Lock, Mail } from 'lucide-react'
+import { TextField, PasswordField } from './form-field'
+import { SubmitButton, Checkbox } from './controls'
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export function LoginForm() {
+  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const form = new FormData(e.currentTarget)
+    const email = String(form.get('email') ?? '').trim()
+    const password = String(form.get('password') ?? '')
+
+    const next: typeof errors = {}
+    if (!email) next.email = 'Please enter your email address.'
+    else if (!EMAIL_RE.test(email)) next.email = 'Enter a valid email address.'
+    if (!password) next.password = 'Please enter your password.'
+
+    setErrors(next)
+    if (Object.keys(next).length > 0) return
+
+    setLoading(true)
+    // Frontend-only demo: no authentication logic.
+    setTimeout(() => setLoading(false), 1400)
+  }
+
+  return (
+    <div>
+      <header className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Welcome back
+        </h1>
+        <p className="mt-2 leading-relaxed text-muted-foreground">
+          Sign in to manage your room reservations and events.
+        </p>
+      </header>
+
+      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <TextField
+          label="Email address"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@company.com"
+          icon={Mail}
+          error={errors.email}
+        />
+
+        <PasswordField
+          label="Password"
+          name="password"
+          autoComplete="current-password"
+          placeholder="Enter your password"
+          icon={Lock}
+          error={errors.password}
+          hint={
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-brand underline-offset-4 transition-colors hover:text-brand/70 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          }
+        />
+
+        <div className="flex items-center justify-between pt-0.5">
+          <Checkbox name="remember" label="Remember me" defaultChecked />
+        </div>
+
+        <SubmitButton loading={loading}>
+          {loading ? 'Signing in…' : 'Sign in'}
+        </SubmitButton>
+      </form>
+
+      <p className="mt-8 text-center text-sm text-muted-foreground">
+        {"Don't have an account? "}
+        <Link
+          href="/signup"
+          className="font-semibold text-brand underline-offset-4 transition-colors hover:underline"
+        >
+          Create one
+        </Link>
+      </p>
+    </div>
+  )
+}
