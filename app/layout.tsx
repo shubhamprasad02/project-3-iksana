@@ -10,9 +10,9 @@ const jakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Atrium — Meeting Room & Hall Booking',
+  title: 'iKSANA Workspace — Meeting Room & Hall Booking',
   description:
-    'Reserve premium meeting rooms and event halls in seconds. Sign in to manage your bookings with Atrium.',
+    'Reserve premium meeting rooms and event halls in seconds. Sign in to manage your bookings with iKSANA Workspace.',
   generator: 'v0.app',
   icons: {
     icon: [

@@ -26,16 +26,13 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <BrandMark variant="light" />
 
           <div className="max-w-md">
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-foreground/15 bg-brand-foreground/5 px-3 py-1 text-xs font-medium text-brand-foreground/80">
-              <span className="size-1.5 rounded-full bg-accent-yellow" aria-hidden="true" />
-              Trusted by 2,400+ workplaces
-            </p>
             <h2 className="text-pretty text-3xl font-bold leading-tight tracking-tight text-brand-foreground xl:text-4xl">
               Where great meetings begin.
             </h2>
             <p className="mt-4 text-pretty leading-relaxed text-brand-foreground/70">
-              Book meeting rooms and event halls in seconds. Atrium keeps your
-              spaces organized, your teams aligned, and your calendar effortless.
+              Book meeting rooms and event halls in seconds. iKSANA Workspace
+              keeps your spaces organized, your teams aligned, and your calendar
+              effortless.
             </p>
 
             <ul className="mt-8 space-y-3.5">
@@ -63,7 +60,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           </div>
 
           <p className="text-xs text-brand-foreground/50">
-            &copy; {new Date().getFullYear()} Atrium Spaces, Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} iKSANA Workspace. All rights reserved.
           </p>
         </div>
       </aside>

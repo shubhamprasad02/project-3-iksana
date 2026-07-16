@@ -33,14 +33,15 @@ export function BrandMark({
           />
         </svg>
       </span>
-      <span
-        className={cn(
-          'text-lg font-bold tracking-tight',
-          isLight ? 'text-brand-foreground' : 'text-foreground',
-        )}
-      >
-        Atrium
-      </span>
+        <span
+          className={cn(
+            'text-lg font-bold tracking-tight',
+            isLight ? 'text-brand-foreground' : 'text-foreground',
+          )}
+        >
+          <span className="lowercase">i</span>KSANA{' '}
+          <span className="font-medium opacity-80">Workspace</span>
+        </span>
     </div>
   )
 }
