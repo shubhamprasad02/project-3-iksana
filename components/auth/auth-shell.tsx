@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 import { BrandMark } from './brand-mark'
 
 const highlights = [
@@ -12,10 +13,12 @@ export function AuthShell({ children }: { children: ReactNode }) {
     <main className="flex min-h-svh w-full bg-background">
       {/* Brand / visual panel */}
       <aside className="relative hidden w-[46%] max-w-[640px] shrink-0 overflow-hidden bg-brand lg:block">
-        <img
+        <Image
           src="/images/meeting-room.png"
           alt="A premium modern corporate meeting room with a polished conference table and floor-to-ceiling windows"
-          className="absolute inset-0 size-full object-cover opacity-25"
+          fill
+          priority
+          className="object-cover opacity-25"
         />
         <div
           className="absolute inset-0 bg-brand/70"

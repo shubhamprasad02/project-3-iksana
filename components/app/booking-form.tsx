@@ -101,21 +101,30 @@ export function BookingForm({ room, initialBookedSlots, userId }: Props) {
 
   function handleSlotClick(slot: string) {
     setError(null)
+
+    // No selection yet OR both already selected → start fresh
     if (!startSlot || (startSlot && endSlot)) {
-      // Start fresh selection
       setStartSlot(slot)
       setEndSlot(null)
       return
     }
-    // Set end slot
-    if (toMinutes(slot) <= toMinutes(startSlot)) {
+
+    // Clicking the same slot again → confirm as a 30-min booking
+    if (slot === startSlot) {
+      setEndSlot(slot)
+      return
+    }
+
+    // Clicked a slot before the start → reset start to the new slot
+    if (toMinutes(slot) < toMinutes(startSlot)) {
       setStartSlot(slot)
       setEndSlot(null)
       return
     }
-    // Check no booked slots in range
+
+    // Check the range for conflicts
     const rangeSlots = ALL_SLOTS.filter(
-      (s) => toMinutes(s) >= toMinutes(startSlot) && toMinutes(s) < toMinutes(slot),
+      (s) => toMinutes(s) >= toMinutes(startSlot) && toMinutes(s) <= toMinutes(slot),
     )
     const conflict = rangeSlots.some((s) => isSlotBooked(s, bookedSlots))
     if (conflict) {
@@ -137,35 +146,36 @@ export function BookingForm({ room, initialBookedSlots, userId }: Props) {
       if (slot === startSlot || slot === endSlot) return 'selected'
       if (slotMin > startMin && slotMin < endMin) return 'in-range'
     } else {
+      // Only startSlot picked — highlight it as selected
       if (slot === startSlot) return 'selected'
     }
     return 'available'
   }
 
   // Computed booking summary
-  // The user picks a START slot and an END slot (both are slot start times).
-  // The actual booking end time is endSlot + 30 min.
-  // Duration = (endSlot + 30) - startSlot = difference between slots + 30.
-  const durationMins =
-    startSlot && endSlot
-      ? toMinutes(endSlot) - toMinutes(startSlot) + 30
-      : 0
+  // endSlot can equal startSlot (single 30-min block).
+  // endTime = endSlot + 30 min (the actual clock end of the booking).
+  // Duration = (endSlot + 30) - startSlot.
+  const isReady = startSlot !== null && endSlot !== null
+
+  const durationMins = isReady
+    ? toMinutes(endSlot!) - toMinutes(startSlot!) + 30
+    : 0
 
   const totalPrice = durationMins > 0
     ? (durationMins / 60) * Number(room.price_per_hour)
     : 0
 
-  // endTime is the actual clock end of the booking (last selected slot + 30 min)
-  const endTime = endSlot
+  const endTime = isReady
     ? (() => {
-        const m = toMinutes(endSlot) + 30
+        const m = toMinutes(endSlot!) + 30
         return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
       })()
     : null
 
   async function handleBook() {
-    if (!startSlot || !endSlot || !endTime) {
-      setError('Please select a start and end slot.')
+    if (!isReady || !endTime) {
+      setError('Please select at least one time slot.')
       return
     }
     setError(null)
@@ -252,7 +262,7 @@ export function BookingForm({ room, initialBookedSlots, userId }: Props) {
             Select time slots
           </p>
           <p className="mb-3 text-xs text-muted-foreground">
-            Click a start slot, then an end slot to set your booking window.
+            Click one slot for 30 min, or click a start then an end slot for longer.
           </p>
 
           {loadingSlots ? (
@@ -305,7 +315,7 @@ export function BookingForm({ room, initialBookedSlots, userId }: Props) {
         </div>
 
         {/* Summary */}
-        {startSlot && endSlot && endTime && (
+        {isReady && endTime && (
           <div className="rounded-xl border border-brand/20 bg-brand/5 px-4 py-3 space-y-1.5 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Time</span>
@@ -339,7 +349,7 @@ export function BookingForm({ room, initialBookedSlots, userId }: Props) {
         <button
           type="button"
           onClick={handleBook}
-          disabled={!startSlot || !endSlot || submitting}
+          disabled={!isReady || submitting}
           className="w-full rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? 'Confirming booking…' : 'Confirm booking'}

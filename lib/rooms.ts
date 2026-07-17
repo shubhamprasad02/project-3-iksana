@@ -27,9 +27,10 @@ export async function getRooms(): Promise<RoomWithImage[]> {
 
   if (error || !data) return []
 
-  return data.map((room: any) => {
-    const images = (room.room_images ?? []).sort(
-      (a: RoomImage, b: RoomImage) => a.sort_order - b.sort_order,
+  type RoomRow = Room & { room_images: RoomImage[] }
+  return (data as RoomRow[]).map((room) => {
+    const images = [...(room.room_images ?? [])].sort(
+      (a, b) => a.sort_order - b.sort_order,
     )
     return {
       id: room.id,
@@ -56,19 +57,21 @@ export async function getRoom(
 
   if (error || !data) return null
 
-  const images = ((data as any).room_images ?? []).sort(
-    (a: RoomImage, b: RoomImage) => a.sort_order - b.sort_order,
+  type RoomDetailRow = Room & { room_images: RoomImage[] }
+  const roomData = data as unknown as RoomDetailRow
+  const images = [...(roomData.room_images ?? [])].sort(
+    (a, b) => a.sort_order - b.sort_order,
   )
 
   return {
     room: {
-      id: data.id,
-      name: data.name,
-      floor: data.floor,
-      description: data.description,
-      price_per_hour: data.price_per_hour,
-      price_per_30_min: data.price_per_30_min,
-      capacity: data.capacity,
+      id: roomData.id,
+      name: roomData.name,
+      floor: roomData.floor,
+      description: roomData.description,
+      price_per_hour: roomData.price_per_hour,
+      price_per_30_min: roomData.price_per_30_min,
+      capacity: roomData.capacity,
     },
     images,
   }

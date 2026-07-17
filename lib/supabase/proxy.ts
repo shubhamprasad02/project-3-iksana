@@ -52,9 +52,10 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname
   const isProtected =
-    path.startsWith('/dashboard') || path.startsWith('/rooms')
-  const isAuthPage =
-    path === '/' || path === '/signup' || path === '/forgot-password'
+    path.startsWith('/dashboard') ||
+    path.startsWith('/rooms') ||
+    path.startsWith('/bookings')
+  const isAuthPage = path === '/' || path === '/signup'
 
   // Not logged in and trying to reach a protected page -> send to login
   if (isProtected && !user) {
