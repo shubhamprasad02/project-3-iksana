@@ -6,7 +6,7 @@ import { useState, type FormEvent } from 'react'
 import { Lock, Mail } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { TextField, PasswordField } from './form-field'
-import { SubmitButton, Checkbox } from './controls'
+import { SubmitButton } from './controls'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -89,19 +89,7 @@ export function LoginForm() {
           placeholder="Enter your password"
           icon={Lock}
           error={errors.password}
-          hint={
-            <Link
-              href="/forgot-password"
-              className="text-sm font-medium text-brand underline-offset-4 transition-colors hover:text-brand/70 hover:underline"
-            >
-              Forgot password?
-            </Link>
-          }
         />
-
-        <div className="flex items-center justify-between pt-0.5">
-          <Checkbox name="remember" label="Remember me" defaultChecked />
-        </div>
 
         <SubmitButton loading={loading}>
           {loading ? 'Signing in…' : 'Sign in'}
