@@ -18,11 +18,15 @@ export async function getMyUpcomingBookings(): Promise<Booking[]> {
   const supabase = await createClient()
   const today = new Date().toISOString().slice(0, 10)
 
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
   const { data, error } = await supabase
     .from('bookings')
     .select(
       'id, room_id, booking_date, day_name, start_time, end_time, duration_minutes, total_price, booking_status, payment_status, rooms(name, floor)',
     )
+    .eq('user_id', user.id)
     .gte('booking_date', today)
     .eq('booking_status', 'confirmed')
     .order('booking_date', { ascending: true })

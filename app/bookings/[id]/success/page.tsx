@@ -46,7 +46,7 @@ export default async function BookingSuccessPage({ params }: Props) {
   const { data: booking, error } = await supabase
     .from('bookings')
     .select(
-      'id, booking_date, day_name, start_time, end_time, duration_minutes, total_price, booking_status, rooms(name, floor, capacity)',
+      'id, room_id, booking_date, day_name, start_time, end_time, duration_minutes, total_price, booking_status, rooms(name, floor, capacity)',
     )
     .eq('id', id)
     .eq('user_id', user.id)
@@ -55,11 +55,8 @@ export default async function BookingSuccessPage({ params }: Props) {
   if (error || !booking) notFound()
 
   const room = booking.rooms as { name: string; floor: string; capacity: number | null } | null
-
-  const endTimeMins =
-    Number(booking.end_time.split(':')[0]) * 60 +
-    Number(booking.end_time.split(':')[1])
-  const endTimeStr = `${String(Math.floor(endTimeMins / 60)).padStart(2, '0')}:${String(endTimeMins % 60).padStart(2, '0')}`
+  // end_time stored in DB is already the actual end (e.g. "14:30") — use it directly
+  const endTimeStr = booking.end_time
 
   return (
     <div className="min-h-svh bg-background">
@@ -132,7 +129,7 @@ export default async function BookingSuccessPage({ params }: Props) {
             Back to dashboard
           </Link>
           <Link
-            href={`/rooms/${booking.id}`}
+            href="/dashboard"
             className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-6 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
           >
             Book another room

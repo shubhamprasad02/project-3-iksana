@@ -143,6 +143,9 @@ export function BookingForm({ room, initialBookedSlots, userId }: Props) {
   }
 
   // Computed booking summary
+  // The user picks a START slot and an END slot (both are slot start times).
+  // The actual booking end time is endSlot + 30 min.
+  // Duration = (endSlot + 30) - startSlot = difference between slots + 30.
   const durationMins =
     startSlot && endSlot
       ? toMinutes(endSlot) - toMinutes(startSlot) + 30
@@ -152,13 +155,13 @@ export function BookingForm({ room, initialBookedSlots, userId }: Props) {
     ? (durationMins / 60) * Number(room.price_per_hour)
     : 0
 
-  const endTime =
-    endSlot
-      ? (() => {
-          const m = toMinutes(endSlot) + 30
-          return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
-        })()
-      : null
+  // endTime is the actual clock end of the booking (last selected slot + 30 min)
+  const endTime = endSlot
+    ? (() => {
+        const m = toMinutes(endSlot) + 30
+        return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
+      })()
+    : null
 
   async function handleBook() {
     if (!startSlot || !endSlot || !endTime) {

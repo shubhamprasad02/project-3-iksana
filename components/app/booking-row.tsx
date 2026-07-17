@@ -43,7 +43,7 @@ export function BookingRow({ booking }: { booking: Booking }) {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        <span className="rounded-full border border-brand/20 bg-brand/8 px-2.5 py-1 text-xs font-semibold text-brand">
+        <span className="rounded-full border border-brand/20 bg-brand/10 px-2.5 py-1 text-xs font-semibold text-brand">
           Confirmed
         </span>
         <span className="text-sm font-semibold text-foreground">

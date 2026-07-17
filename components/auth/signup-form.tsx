@@ -46,7 +46,7 @@ export function SignupForm() {
     setLoading(true)
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -54,17 +54,19 @@ export function SignupForm() {
         },
       })
       if (error) {
-        setFormError(error.message)
+        // "User already registered" gives a cleaner message
+        if (error.message.toLowerCase().includes('already registered')) {
+          setFormError('An account with this email already exists. Please sign in.')
+        } else {
+          setFormError(error.message)
+        }
         setLoading(false)
         return
       }
-      // Sign in immediately after signup (email confirmation disabled)
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (signInError) {
-        setFormError(signInError.message)
+      // If email confirmation is still on at the Supabase project level,
+      // identities will be empty and there will be no session.
+      if (!signUpData.session) {
+        setFormError('Could not sign in automatically. Please go to Sign in and log in with your credentials.')
         setLoading(false)
         return
       }
